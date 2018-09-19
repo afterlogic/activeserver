@@ -45,7 +45,7 @@
 // %u: replaced with the username
 // %d: replaced with the domain
 //   Add the trailing /
-define('CARDDAV_PATH', '/addressbooks/%u/');
+define('CARDDAV_PATH', '/addressbooks/');
 
 
 // Server path to the default addressbook
@@ -53,7 +53,7 @@ define('CARDDAV_PATH', '/addressbooks/%u/');
 // %u: replaced with the username
 // %d: replaced with the domain
 //   Add the trailing /
-define('CARDDAV_DEFAULT_PATH', '/addressbooks/%u/');
+define('CARDDAV_DEFAULT_PATH', '/addressbooks/');
 
 // Server path to the GAL addressbook. This addressbook is readonly and searchable by the user, but it will NOT be synced.
 // If you don't want GAL, comment it

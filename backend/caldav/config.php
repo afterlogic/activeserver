@@ -40,7 +40,7 @@
 //define('CARDDAV_PORT', 80);
 
 // Path
-define('CALDAV_PATH', '/calendars/%u/');
+define('CALDAV_PATH', '/calendars/');
 
 // Default CalDAV folder (calendar folder/principal). This will be marked as the default calendar in the mobile
 define('CALDAV_PERSONAL', 'PRINCIPAL');

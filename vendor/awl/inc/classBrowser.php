@@ -815,7 +815,7 @@ class Browser
     }
 
 
-    if ( count($this->ExtraRows) > 0 ) {
+    if ( is_array($this->ExtraRows) && count($this->ExtraRows) > 0 ) {
       if ( !isset($this->BeginExtraRow) )
         $this->BeginExtraRow = $this->BeginRow;
       if ( !isset($this->CloseExtraRow) )

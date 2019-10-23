@@ -58,7 +58,7 @@
  *           State migration script is available, more informations: https://wiki.z-hub.io/x/xIAa
  */
     define('STATE_MACHINE', 'FILE');
-    define('STATE_DIR', '/opt/afterlogic/html/sync.afterlogic.com/data/');
+    define('STATE_DIR', dirname(__FILE__) . '/data/');
 
 /**********************************************************************************
  *  IPC - InterProcessCommunication
@@ -107,7 +107,7 @@
     $specialLogUsers = array();
 
     // Filelog settings
-    define('LOGFILEDIR', '/var/www/html/webmail/data/logs/');
+    define('LOGFILEDIR', dirname(__FILE__) . '/data/logs/');
     define('LOGFILE', LOGFILEDIR . 'z-push.log');
     define('LOGERRORFILE', LOGFILEDIR . 'z-push-error.log');
 

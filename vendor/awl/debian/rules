@@ -16,4 +16,3 @@ override_dh_installdocs:
 
 override_dh_installchangelogs:
 	dh_installchangelogs ChangeLog
-

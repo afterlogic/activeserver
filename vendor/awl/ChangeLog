@@ -1,3 +1,24 @@
+2017-01-23 Florian Schlichting <fsfs@debian.org>
+	* release awl 0.60
+	* Update AUTHORS and ChangeLog
+
+2018-12-29 Florian Schlichting <fsfs@debian.org>
+	* GetItip: do no increase SEQUENCE
+	* log feedback from gettext init
+	* Remove apidoc for removed class iCalendar
+	* Update debian/watch to changed Gitlab directory layout
+
+2018-12-27 Florian Schlichting <fsfs@debian.org>
+	* Prevent "PHP Warning: count(): Parameter must be an array..." (fixes
+	  #15, also fixes davical-project/davical#153)
+
+2018-11-19 Jamie McClymont <jamiemcclymont@catalyst.net.nz>
+	* Add GitLab CI
+
+2018-04-30 Malte Renken <malte.renken@fu-berlin.de>
+	* XMLElement::__construct() : set $this->attributes to an empty array
+	  by default. Fixes https://gitlab.com/davical-project/awl/issues/14
+
 2018-01-11 Florian Schlichting <fsfs@debian.org>
 	* release awl 0.59
 	* switch to doxygen for api docs

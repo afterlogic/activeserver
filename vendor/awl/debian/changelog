@@ -1,3 +1,12 @@
+awl (0.60-1) unstable; urgency=medium
+
+  * New upstream release (closes: #890313)
+  * Update debian/watch to changed Gitlab directory layout
+  * Update copyright years
+  * Declare compliance with Debian Policy 4.3.0
+
+ -- Florian Schlichting <fsfs@debian.org>  Wed, 30 Jan 2019 22:54:03 +0100
+
 awl (0.59-1) unstable; urgency=medium
 
   * New upstream release (closes: #882894)

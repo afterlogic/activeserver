@@ -815,15 +815,12 @@ EOFXSL;
             curl_setopt($this->curl, CURLOPT_POSTFIELDS, null);
         }
 
-		$headers = [];
         if ($content_type !== null) {
-			$headers = array('Content-type: '.$content_type. '; charset=utf-8', 'Depth: '.$depth);
+            curl_setopt($this->curl, CURLOPT_HTTPHEADER, array('Content-type: '.$content_type. '; charset=utf-8', 'Depth: '.$depth));
         }
         else {
-			$headers =  array('Depth: '.$depth);
+            curl_setopt($this->curl, CURLOPT_HTTPHEADER, array('Depth: '.$depth));
         }
-		$headers['x-user-agent'] = 'X-User-Agent: Afterlogic ActiveServer';
-		curl_setopt($this->curl, CURLOPT_HTTPHEADER, $headers);
 
         $complete_response	= curl_exec($this->curl);
         $header_size		= curl_getinfo($this->curl, CURLINFO_HEADER_SIZE);

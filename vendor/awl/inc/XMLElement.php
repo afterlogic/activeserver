@@ -43,6 +43,7 @@ class XMLElement {
       $this->content = $content;
     }
     $this->attributes = $attributes;
+    if ( $this->attributes === false ) $this->attributes = array();
     if ( isset($xmlns) ) {
       $this->xmlns = $xmlns;
     }

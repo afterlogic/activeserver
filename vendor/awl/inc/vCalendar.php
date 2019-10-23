@@ -380,9 +380,6 @@ class vCalendar extends vComponent {
                 else
                   $comp->clearPropertyAt($k);
                 break;
-              case 'SEQUENCE':
-                $property->Value( $property->Value() + 1);
-                break;
             }
           }
           $comp->AddProperty('DTSTAMP', date('Ymd\THis\Z'));

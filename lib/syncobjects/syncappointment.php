@@ -245,19 +245,6 @@ class SyncAppointment extends SyncObject {
             $time = time();
             $calcstart = $time + 1800 - ($time % 1800); // round up to the next half hour
 
-            // Case 1, 4
-            if (!isset($this->endtime)) {
-				if ($this->alldayevent == '1')
-				{
-					$this->endtime = $this->starttime + 86400; // 30 min after calcstart
-				}
-				else 
-				{
-					$this->endtime = $this->starttime + 1800; // 30 min after calcstart
-				}
-                ZLog::Write(LOGLEVEL_WBXML, sprintf("SyncAppointment->Check(): Parameter 'endtime' was not set, setting it to %d (%s).", $this->endtime, gmstrftime("%Y%m%dT%H%M%SZ", $this->endtime)));
-            }
-			
             // Check error cases first
             // Case 2: starttime not set, endtime in the past
             if (!isset($this->starttime) && isset($this->endtime) && $this->endtime < $time) {
@@ -280,6 +267,11 @@ class SyncAppointment extends SyncObject {
             if (!isset($this->starttime)) {
                 $this->starttime = $calcstart;
                 ZLog::Write(LOGLEVEL_WBXML, sprintf("SyncAppointment->Check(): Parameter 'starttime' was not set, setting it to %d (%s).", $this->starttime, gmstrftime("%Y%m%dT%H%M%SZ", $this->starttime)));
+            }
+            // Case 1, 4
+            if (!isset($this->endtime)) {
+                $this->endtime = $calcstart + 1800; // 30 min after calcstart
+                ZLog::Write(LOGLEVEL_WBXML, sprintf("SyncAppointment->Check(): Parameter 'endtime' was not set, setting it to %d (%s).", $this->endtime, gmstrftime("%Y%m%dT%H%M%SZ", $this->endtime)));
             }
         }
 

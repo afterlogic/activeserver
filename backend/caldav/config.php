@@ -43,7 +43,7 @@
 define('CALDAV_PATH', '/calendars/');
 
 // Default CalDAV folder (calendar folder/principal). This will be marked as the default calendar in the mobile
-define('CALDAV_PERSONAL', 'PRINCIPAL');
+define('CALDAV_PERSONAL', 'MyCalendar');
 
 // If the CalDAV server supports the sync-collection operation
 // DAViCal, SOGo and SabreDav support it

@@ -22,15 +22,15 @@
 	// IMAP settings
 	
 	// Defines the server to which we want to connect
-	define('IMAP_SERVER', 'afterlogic.com');
+	define('IMAP_SERVER', 'localhost');
 	// connecting to default port (143)
 	define('IMAP_PORT', 143);	
 	
 	// SMTP settings
 	// Defines the server to which we want to connect (ssl://host)
-	define('AURORA_SMTP_SERVER', 'ssl://mail.afterlogic.com');
+	define('AURORA_SMTP_SERVER', 'localhost');
 	// connecting to default port (25)
-	define('AURORA_SMTP_PORT', 465);
+	define('AURORA_SMTP_PORT', 25);
 /**********************************************************************************/
 
 

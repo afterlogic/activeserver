@@ -156,7 +156,7 @@ class BackendCalDAV extends BackendDiff {
         $folder->displayname = $val->displayname;
         $folder->serverid = $id;
         if ($id[0] == "C") {
-            if (defined('CALDAV_PERSONAL') && strcasecmp(substr($id, 1), CALDAV_PERSONAL) == 0) {
+            if (defined('CALDAV_PERSONAL') && strcasecmp(substr($id, 1, strlen(CALDAV_PERSONAL)), CALDAV_PERSONAL) == 0) {
                 $folder->type = SYNC_FOLDER_TYPE_APPOINTMENT;
             }
             else {
@@ -164,7 +164,7 @@ class BackendCalDAV extends BackendDiff {
             }
         }
         else {
-            if (defined('CALDAV_PERSONAL') && strcasecmp(substr($id, 1), CALDAV_PERSONAL) == 0) {
+            if (defined('CALDAV_PERSONAL') && strcasecmp(substr($id, 1, strlen(CALDAV_PERSONAL)), CALDAV_PERSONAL) == 0) {
                 $folder->type = SYNC_FOLDER_TYPE_TASK;
             }
             else {

@@ -1,3 +1,17 @@
+awl (0.61-1) unstable; urgency=medium
+
+  * New upstream release (closes: #952182, #956650)
+    + fix CVE-2020-11728 "Session::__construct() allows use of the current
+      time as a session key"
+    + fix CVE-2020-11729 "LSIDLogin() is insecure and can allow user
+      impersonation"
+  * Bump debhelper compat to level 12
+  * Update copyright years
+  * Add upstream metadata
+  * Declare compliance with Debian Policy 4.5.0
+
+ -- Florian Schlichting <fsfs@debian.org>  Mon, 13 Apr 2020 21:37:06 +0200
+
 awl (0.60-1) unstable; urgency=medium
 
   * New upstream release (closes: #890313)

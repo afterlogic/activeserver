@@ -6,37 +6,37 @@ Upstream-Contact: davical-devel@lists.sourceforge.net
 Files: *
 Copyright: 2006 - 2008 Catalyst IT Ltd
  2006 - 2013 Andrew McMillan
- 2009 - 2019 Davical contributors (see AUTHORS for details)
+ 2009 - 2020 Davical contributors (see AUTHORS for details)
 License: GPL-2+
 
 Files: inc/classEditor.php inc/DataEntry.php
 Copyright: 2006 - 2008 Catalyst IT Ltd
  2006 - 2013 Andrew McMillan
- 2009 - 2019 Davical contributors (see AUTHORS for details)
+ 2009 - 2020 Davical contributors (see AUTHORS for details)
 License: GPL-2
 
 Files: inc/vComponent.php inc/AwlCache.php
 Copyright: 2006 - 2008 Catalyst IT Ltd
  2006 - 2013 Andrew McMillan
- 2009 - 2019 Davical contributors (see AUTHORS for details)
+ 2009 - 2020 Davical contributors (see AUTHORS for details)
 License: LGPL-2+
 
 Files: inc/AwlDatabase.php inc/AwlDBDialect.php inc/AwlQuery.php
 Copyright: 2006 - 2008 Catalyst IT Ltd
  2006 - 2013 Andrew McMillan
- 2009 - 2019 Davical contributors (see AUTHORS for details)
+ 2009 - 2020 Davical contributors (see AUTHORS for details)
 License: GPL-3+
 
 Files: inc/vCalendar.php inc/AWLUtilities.php.in inc/AwlUpgrader.php
  inc/AWLUtilities.php inc/XMLDocument.php inc/XMLElement.php
 Copyright: 2006 - 2008 Catalyst IT Ltd
  2006 - 2013 Andrew McMillan
- 2009 - 2019 Davical contributors (see AUTHORS for details)
+ 2009 - 2020 Davical contributors (see AUTHORS for details)
 License: LGPL-3+
 
 Files: debian/*
 Copyright: 2006-2012, Andrew McMillan <awm@debian.org>
- 2014-2019, Florian Schlichting <fsfs@debian.org>
+ 2014-2020, Florian Schlichting <fsfs@debian.org>
 License: GPL-2+
 
 License: GPL-2+

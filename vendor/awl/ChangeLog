@@ -1,4 +1,19 @@
-2017-01-23 Florian Schlichting <fsfs@debian.org>
+2020-04-13 Florian Schlichting <fsfs@debian.org>
+	* release awl 0.61
+	* Update AUTHORS and ChangeLog
+
+2020-04-04 Florian Schlichting <fsfs@debian.org>
+	* Disallow current time as a session key (fix: #19, CVE-2020-11728)
+	* Drop LSIDLogin function (fix: #18, CVE-2020-11729)
+
+2019-02-27 Jamie McClymont <jamiemcclymont@catalyst.net.nz>
+	* Make olson_from_tzstring faster by caching timezone_identifiers_list
+
+2019-12-06 Florian Schlichting <fsfs@debian.org>
+	* myComponentTest.php: drop empty setUp function, which causes make test to fail with PHPUnit 8
+	* use foreach() instead of deprecated each() (see davical-project/davical#190)
+
+2019-01-30 Florian Schlichting <fsfs@debian.org>
 	* release awl 0.60
 	* Update AUTHORS and ChangeLog
 

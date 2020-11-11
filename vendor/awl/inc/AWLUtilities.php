@@ -602,13 +602,15 @@ if ( !function_exists("force_utf8") ) {
 }
 
 
+$timezone_identifiers_list_cache = timezone_identifiers_list();
+
 /**
 * Try and extract something like "Pacific/Auckland" or "America/Indiana/Indianapolis" if possible.
 */
 function olson_from_tzstring( $tzstring ) {
-  global $c;
+  global $c, $timezone_identifiers_list_cache;
 
-  if ( function_exists('timezone_identifiers_list') && in_array($tzstring,timezone_identifiers_list()) ) return $tzstring;
+  if ( in_array($tzstring,$timezone_identifiers_list_cache) ) return $tzstring;
   if ( preg_match( '{((Antarctica|America|Africa|Atlantic|Asia|Australia|Indian|Europe|Pacific)/(([^/]+)/)?[^/]+)$}', $tzstring, $matches ) ) {
 //    dbg_error_log( 'INFO', 'Found timezone "%s" from string "%s"', $matches[1], $tzstring );
     return $matches[1];
@@ -698,6 +700,6 @@ if ( !function_exists("gzdecode") ) {
  */
 function awl_version() {
   global $c;
-$c->awl_library_version = 0.60;
+$c->awl_library_version = 0.61;
   return $c->awl_library_version;
 }

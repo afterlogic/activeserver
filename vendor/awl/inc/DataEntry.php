@@ -170,7 +170,7 @@ class EntryField
       case "select":
         $r .= "select name=\"$this->fname\"%%attributes%%>";
         reset( $this->attributes );
-        while( list($k,$v) = each( $this->attributes ) ) {
+        foreach( $this->attributes as $k => $v ) {
           if ( substr($k, 0, 1) != '_' ) continue;
           if ( $k == '_help' ) continue;
           $k = substr($k,1);
@@ -184,7 +184,7 @@ class EntryField
       case "lookup":
         $r .= "select name=\"$this->fname\"%%attributes%%>";
         reset( $this->attributes );
-        while( list($k,$v) = each( $this->attributes ) ) {
+        foreach( $this->attributes as $k => $v ) {
           if ( substr($k, 0, 1) != '_' ) continue;
           $k = substr($k,1);
           if ( $k == 'help' || $k == "sql" || $k == "type" ) continue;
@@ -263,7 +263,7 @@ class EntryField
     // Now process the generic attributes
     reset( $this->attributes );
     $attribute_values = "";
-    while( list($k,$v) = each( $this->attributes ) ) {
+    foreach( $this->attributes as $k => $v ) {
       if ( $k == '_readonly' ) $attribute_values .= " readonly";
       else if ( $k == '_disabled' ) $attribute_values .= " disabled";
       if ( substr($k, 0, 1) == '_' ) continue;
@@ -483,7 +483,7 @@ class EntryForm
     // Now process the generic attributes
     reset( $extra_attributes );
     $attribute_values = "";
-    while( list($k,$v) = each( $extra_attributes ) ) {
+    foreach( $extra_attributes as $k => $v ) {
       $attribute_values .= " $k=\"".htmlspecialchars($v)."\"";
     }
     return "<form$attribute_values>\n";
@@ -655,7 +655,7 @@ class EntryForm
     $prompt = "<select name=\"$prompt_name\">";
 
     reset($prompt_options);
-    while( list($k,$v) = each($prompt_options) ) {
+    foreach( $prompt_options as $k => $v ) {
       $selected = ( ( $k == $default_prompt ) ? ' selected="selected"' : '' );
       $nextrow = "<option value=\"$k\"$selected>$v</option>";
       if ( preg_match('/&/', $nextrow) ) $nextrow = preg_replace( '/&/', '&amp;', $nextrow);

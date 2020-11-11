@@ -173,9 +173,9 @@ class Session
     else {
       $sql = "SELECT session.*, usr.* FROM session JOIN usr USING ( user_no )";
     }
-    $sql .= " WHERE session.session_id = ? AND (md5(session.session_start::text) = ? OR session.session_key = ?) ORDER BY session.session_start DESC LIMIT 2";
+    $sql .= " WHERE session.session_id = ? AND session.session_key = ? ORDER BY session.session_start DESC LIMIT 2";
 
-    $qry = new AwlQuery($sql, $session_id, $session_key, $session_key);
+    $qry = new AwlQuery($sql, $session_id, $session_key);
     if ( $qry->Exec('Session') && 1 == $qry->rows() ) {
       $this->AssignSessionDetails( $qry->Fetch() );
       $qry = new AwlQuery('UPDATE session SET session_end = current_timestamp WHERE session_id=?', $session_id);
@@ -369,12 +369,6 @@ class Session
             // Recognise that we have started a session now too...
             $this->__construct($sid);
             dbg_error_log( "Login", " Login: New session $session_id started for $username ($user_no)" );
-            if ( isset($_POST['remember']) && intval($_POST['remember']) > 0 ) {
-              $cookie = md5( $user_no ) . ";";
-              $cookie .= session_salted_md5($user_no . $usr->username . $usr->password);
-              $GLOBALS['lsid'] = $cookie;
-              setcookie( "lsid", $cookie, time() + (86400 * 3600), "/" );   // will expire in ten or so years
-            }
             $this->just_logged_in = true;
 
             // Unset all of the submitted values, so we don't accidentally submit an unexpected form.
@@ -390,9 +384,9 @@ class Session
             else {
               $sql = "SELECT session.*, usr.* FROM session JOIN usr USING ( user_no )";
             }
-            $sql .= " WHERE session.session_id = ? AND (md5(session.session_start::text) = ? OR session.session_key = ?) ORDER BY session.session_start DESC LIMIT 2";
+            $sql .= " WHERE session.session_id = ? AND session.session_key = ? ORDER BY session.session_start DESC LIMIT 2";
 
-            $qry = new AwlQuery($sql, $session_id, $session_key, $session_key);
+            $qry = new AwlQuery($sql, $session_id, $session_key);
             if ( $qry->Exec('Session') && 1 == $qry->rows() ) {
               $this->AssignSessionDetails( $qry->Fetch() );
             }
@@ -432,100 +426,6 @@ class Session
 
 
 /**
-* Attempts to logs in using a long-term session ID
-*
-* This is all horribly insecure, but its hard not to be.
-*
-* @param string $lsid The user's value of the lsid cookie.
-* @return boolean Whether or not the user's lsid cookie got them in the door.
-*/
-  function LSIDLogin( $lsid ) {
-    global $c;
-    dbg_error_log( "Login", " LSIDLogin: Attempting login for $lsid" );
-
-    list($md5_user_no,$validation_string) = explode( ';', $lsid );
-    $qry = new AwlQuery( "SELECT * FROM usr WHERE md5(user_no::text)=? AND active", $md5_user_no );
-    if ( $qry->Exec('Login') && $qry->rows() == 1 ) {
-      $usr = $qry->Fetch();
-      list( $x, $salt, $y) = explode('*', $validation_string);
-      $my_validation = session_salted_md5($usr->user_no . $usr->username . $usr->password, $salt);
-      if ( $validation_string == $my_validation ) {
-        // Now get the next session ID to create one from...
-        $qry = new AwlQuery( "SELECT nextval('session_session_id_seq')" );
-        if ( $qry->Exec('Login') && $qry->rows() == 1 ) {
-          $seq = $qry->Fetch();
-          $session_id = $seq->nextval;
-          $session_key = md5( rand(1010101,1999999999) . microtime() );  // just some random shite
-          dbg_error_log( "Login", " LSIDLogin: Valid username/password for $usr->username ($usr->user_no)" );
-
-          // And create a session
-          $sql = "INSERT INTO session (session_id, user_no, session_key) VALUES( ?, ?, ? )";
-          $qry = new AwlQuery( $sql, $session_id, $usr->user_no, $session_key );
-          if ( $qry->Exec('Login') ) {
-            // Assign our session ID variable
-            $sid = "$session_id;$session_key";
-
-            //  Create a cookie for the sesssion
-            setcookie('sid',$sid, 0,'/');
-            // Recognise that we have started a session now too...
-            $this->__construct($sid);
-            dbg_error_log( "Login", " LSIDLogin: New session $session_id started for $usr->username ($usr->user_no)" );
-
-            $this->just_logged_in = true;
-
-            // Unset all of the submitted values, so we don't accidentally submit an unexpected form.
-            unset($_POST['username']);
-            unset($_POST['password']);
-            unset($_POST['submit']);
-            unset($_GET['submit']);
-            unset($GLOBALS['submit']);
-
-            if ( function_exists('local_session_sql') ) {
-              $sql = local_session_sql();
-            }
-            else {
-              $sql = "SELECT session.*, usr.* FROM session JOIN usr USING ( user_no )";
-            }
-            $sql .= " WHERE session.session_id = ? AND (md5(session.session_start::text) = ? OR session.session_key = ?) ORDER BY session.session_start DESC LIMIT 2";
-
-            $qry = new AwlQuery($sql, $session_id, $session_key, $session_key);
-            if ( $qry->Exec('Session') && 1 == $qry->rows() ) {
-              $this->AssignSessionDetails( $qry->Fetch() );
-            }
-
-            $rc = true;
-            return $rc;
-          }
-   // else ...
-          $this->cause = 'ERR: Could not create new session.';
-        }
-        else {
-          $this->cause = 'ERR: Could not increment session sequence.';
-        }
-      }
-      else {
-        dbg_error_log( "Login", " LSIDLogin: $validation_string != $my_validation ($salt - $usr->user_no, $usr->username, $usr->password)");
-        $client_messages[] = i18n('Invalid username or password.');
-        if ( isset($c->dbg['Login']) || isset($c->dbg['ALL']) )
-          $this->cause = 'WARN: Invalid password.';
-        else
-          $this->cause = 'WARN: Invalid username or password.';
-      }
-    }
-    else {
-    $client_messages[] = i18n('Invalid username or password.');
-    if ( isset($c->dbg['Login']) || isset($c->dbg['ALL']) )
-      $this->cause = 'WARN: Invalid username.';
-    else
-      $this->cause = 'WARN: Invalid username or password.';
-    }
-
-    dbg_error_log( "Login", " LSIDLogin: $this->cause" );
-    return false;
-  }
-
-
-/**
 * Renders some HTML for a basic login panel
 *
 * @return string The HTML to display a login panel.
@@ -535,7 +435,6 @@ class Session
     dbg_error_log( "Login", " RenderLoginPanel: action_target='%s'", $action_target );
     $userprompt = translate("User Name");
     $pwprompt = translate("Password");
-    $rememberprompt = str_replace( ' ', '&nbsp;', translate("forget me not"));
     $gobutton = htmlspecialchars(translate("GO!"));
     $gotitle = htmlspecialchars(translate("Enter your username and password then click here to log in."));
     $temppwprompt = translate("If you have forgotten your password then");
@@ -554,7 +453,6 @@ class Session
 <th class="prompt">$pwprompt:</th>
 <td class="entry">
 <input class="password" type="password" name="password" size="12" />
- &nbsp;<label>$rememberprompt: <input class="checkbox" type="checkbox" name="remember" value="1" /></label>
 </td>
 </tr>
 <tr>
@@ -813,10 +711,6 @@ EOTEXT;
       setcookie( 'sid', '', 0,'/');
       unset($_COOKIE['sid']);
       unset($GLOBALS['sid']);
-      unset($_COOKIE['lsid']); // Allow a cookied person to be un-logged-in for one page view.
-      unset($GLOBALS['lsid']);
-
-      if ( isset($_GET['forget']) ) setcookie( 'lsid', '', 0,'/');
     }
   }
 
@@ -830,11 +724,6 @@ EOTEXT;
       // Try and log in if we have a username and password
       $this->Login( $_POST['username'], $_POST['password'] );
       @dbg_error_log( "Login", ":_CheckLogin: User %s(%s) - %s (%d) login status is %d", $_POST['username'], $this->fullname, $this->user_no, $this->logged_in );
-    }
-    else if ( !isset($_COOKIE['sid']) && isset($_COOKIE['lsid']) && $_COOKIE['lsid'] != "" ) {
-      // Validate long-term session details
-      $this->LSIDLogin( $_COOKIE['lsid'] );
-      dbg_error_log( "Login", ":_CheckLogin: User $this->username - $this->fullname ($this->user_no) login status is $this->logged_in" );
     }
     else if ( !isset($_COOKIE['sid']) && isset($c->authenticate_hook['server_auth_type']) ) {
       /**

@@ -4,8 +4,8 @@ Priority: optional
 Maintainer: Davical Development Team <davical-devel@lists.sourceforge.net>
 Uploaders: Andrew McMillan <awm@debian.org>,
  Florian Schlichting <fsfs@debian.org>
-Standards-Version: 4.3.0
-Build-Depends: debhelper (>= 9), jdupes, doxygen, phpunit
+Standards-Version: 4.5.0
+Build-Depends: debhelper-compat (= 12), jdupes, doxygen, phpunit
 Vcs-git: https://gitlab.com/davical-project/awl.git
 Vcs-browser: https://gitlab.com/davical-project/awl
 Homepage: https://www.davical.org

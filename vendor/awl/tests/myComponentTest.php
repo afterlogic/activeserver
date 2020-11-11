@@ -29,11 +29,6 @@ SUMARY:12234567890122345678901223456789012234567890122345678901223467890
 END:VCALENDAR
 EOSIMPLEDATA1;
 
-    protected function setUp()
-    {
-        //$this->markTestIncomplete( );
-    }
-
     function testParseComponents() {
 
        // $lines = new HeapLines((new bigtestdata)->testdata2);

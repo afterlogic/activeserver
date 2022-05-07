@@ -34,7 +34,7 @@
 //define('IMAP_PORT', 143);
 
 // best cross-platform compatibility (see http://php.net/imap_open for options)
-define('IMAP_OPTIONS', '/novalidate-cert');
+//define('IMAP_OPTIONS', '/novalidate-cert');
 
 
 // Mark messages as read when moving to Trash.
@@ -175,14 +175,13 @@ global $imap_smtp_params;
 $imap_smtp_params = array(
     'host' => AURORA_SMTP_SERVER,
     'port' => AURORA_SMTP_PORT,
-    'auth' => true,
-    'username' => 'imap_username',
-    'password' => 'imap_password',
-    'verify_peer' => false,
-    'verify_peer_name' => false
+    'auth' => AURORA_SMTP_AUTH,
+    'username' => AURORA_SMTP_USER_NAME,
+    'password' => AURORA_SMTP_USER_PASSWORD,
+    'verify_peer' => AURORA_SMTP_VERIFY_PEER,
+    'verify_peer_name' => AURORA_SMTP_VERIFY_PEER_NAME,
+    'allow_self_signed' => AURORA_SMTP_ALLOW_SELF_SIGNED
 );
-
-
 
 //      sendmail
 //$imap_smtp_params = array('sendmail_path' => '/usr/bin/sendmail', 'sendmail_args' => '-i');

@@ -162,7 +162,7 @@ class AwlQuery
   protected $rownum = null;
 
   /**
-  * number of rows from pg_numrows - use accessor to get value
+  * number of rows from pg_num_rows - use accessor to get value
   * @var int
   */
   protected $rows;
@@ -191,6 +191,8 @@ class AwlQuery
   * @var string
   */
   public $location;
+  public $location_line;
+  public $location_file;
 
   /**
   * How long the query should take before a warning is issued.

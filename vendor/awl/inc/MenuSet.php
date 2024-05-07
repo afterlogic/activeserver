@@ -66,6 +66,12 @@ class MenuOption {
   /**#@-*/
 
   /**
+  * MenuSet attributes
+  * @var array
+  */
+  var $attributes;
+
+  /**
   * A reference to this menu option itself
   * @var reference
   */

@@ -37,6 +37,7 @@ class vCalendar extends vComponent {
   private $organizer;
   private $attendees;
   private $schedule_agent;
+  private $rendered;
 
   /**
    * Constructor.  If a string is passed it will be parsed as if it was an iCalendar object,

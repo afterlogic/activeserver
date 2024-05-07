@@ -30,7 +30,13 @@ if ( !function_exists('dbg_error_log') ) {
     global $c, $session;
     $args = func_get_args();
     $type = "DBG";
-    $component = array_shift($args);
+
+    if (func_num_args() > 1) {
+      $component = array_shift($args);
+    } else {
+      $component = 'UNKNOWN';
+    }
+
     if ( substr( $component, 0, 3) == "LOG" ) {
       // Special escape case for stuff that always gets logged.
       $type = 'LOG';
@@ -49,19 +55,21 @@ if ( !function_exists('dbg_error_log') ) {
 
     /* filter by remote IP or logged-in user */
     if ( isset($c->dbg_filter["remoteIP"]) && !in_array($_SERVER['REMOTE_ADDR'], $c->dbg_filter["remoteIP"]) ) return;
+
     if ( isset($c->dbg_filter["authenticatedUser"]) ) {
-        if ( !isset($session->username) ) return;
-        if ( !in_array($session->username, $c->dbg_filter["authenticatedUser"]) ) return;
+      if ( !isset($session->username) ) return;
+      if ( !in_array($session->username, $c->dbg_filter["authenticatedUser"]) ) return;
     }
 
-    $argc = func_num_args();
-    if ( 2 <= $argc ) {
+    if ( count($args) >= 2 ) {
       $format = array_shift($args);
+      @error_log( $c->sysabbr . request_id_str() . ": $type: $component:"
+        . vsprintf( $format, $args ) );
     }
     else {
-      $format = "%s";
+      @error_log( $c->sysabbr . request_id_str() . ": $type: $component:"
+        . $args[0]);
     }
-    @error_log( $c->sysabbr.": $type: $component:". vsprintf( $format, $args ) );
   }
 }
 
@@ -71,20 +79,23 @@ if ( !function_exists('fatal') ) {
     global $c;
     $args = func_get_args();
     $argc = func_num_args();
+    $request_id_str = request_id_str();
+
     if ( 2 <= $argc ) {
       $format = array_shift($args);
     }
     else {
       $format = "%s";
     }
-    @error_log( $c->sysabbr.": FATAL: $component:". vsprintf( $format, $args ) );
 
-    @error_log( "================= Stack Trace ===================" );
+    @error_log( $c->sysabbr. $request_id_str . ": FATAL: $component:". vsprintf( $format, $args ) );
+
+    @error_log( $request_id_str . "================= Stack Trace ===================" );
 
     $trace = array_reverse(debug_backtrace());
     array_pop($trace);
     foreach( $trace AS $k => $v ) {
-      @error_log( sprintf(" ===>  %s[%d] calls %s%s%s()",
+      @error_log( $request_id_str . sprintf(" ===>  %s[%d] calls %s%s%s()",
                     $v['file'],
                     $v['line'],
                     (isset($v['class'])?$v['class']:''),
@@ -106,20 +117,23 @@ if ( !function_exists('trace_bug') ) {
     global $c;
     $args = func_get_args();
     $argc = func_num_args();
+    $request_id_str = request_id_str();
+
     if ( 2 <= $argc ) {
       $format = array_shift($args);
     }
     else {
       $format = "%s";
     }
-    @error_log( $c->sysabbr.": BUG: $component:". vsprintf( $format, $args ) );
 
-    @error_log( "================= Stack Trace ===================" );
+    @error_log( $c->sysabbr . $request_id_str . ": BUG: $component:". vsprintf( $format, $args ) );
+
+    @error_log( $request_id_str . "================= Stack Trace ===================" );
 
     $trace = array_reverse(debug_backtrace());
     array_pop($trace);
     foreach( $trace AS $k => $v ) {
-      @error_log( sprintf(" ===>  %s[%d] calls %s%s%s()",
+      @error_log( $request_id_str . sprintf(" ===>  %s[%d] calls %s%s%s()",
                     $v['file'],
                     $v['line'],
                     (isset($v['class'])?$v['class']:''),
@@ -603,6 +617,7 @@ if ( !function_exists("force_utf8") ) {
 
 
 $timezone_identifiers_list_cache = timezone_identifiers_list();
+$timezone_identifiers_list_cache = isset($timezone_identifiers_list_cache) ? $timezone_identifiers_list_cache : [];
 
 /**
 * Try and extract something like "Pacific/Auckland" or "America/Indiana/Indianapolis" if possible.
@@ -648,13 +663,16 @@ function olson_from_tzstring( $tzstring ) {
 if ( !function_exists("deprecated") ) {
   function deprecated( $method ) {
     global $c;
+    $request_id_str = request_id_str();
+
     if ( isset($c->dbg['ALL']) || isset($c->dbg['deprecated']) ) {
       $stack = debug_backtrace();
       array_shift($stack);
+
       if ( preg_match( '{/inc/iCalendar.php$}', $stack[0]['file'] ) && $stack[0]['line'] > __LINE__ ) return;
-      @error_log( sprintf( $c->sysabbr.':DEPRECATED: Call to deprecated method "%s"', $method));
+      @error_log( sprintf( $c->sysabbr . $request_id_str . ':DEPRECATED: Call to deprecated method "%s"', $method));
       foreach( $stack AS $k => $v ) {
-        @error_log( sprintf( $c->sysabbr.':  ==>  called from line %4d of %s', $v['line'], $v['file']));
+        @error_log( sprintf( $c->sysabbr . $request_id_str . ':  ==>  called from line %4d of %s', $v['line'], $v['file']));
       }
     }
   }
@@ -695,11 +713,56 @@ if ( !function_exists("gzdecode") ) {
   }
 }
 
+if ( !function_exists("request_id") ) {
+  function request_id() {
+    global $c;
+
+    if (isset($c->request_id))
+      return $c->request_id;
+
+    if (isset($_SERVER['UNIQUE_ID'])) {
+      # Use what Apache2 has provided.
+      $c->request_id = $_SERVER['UNIQUE_ID'];
+
+    } else if (isset($_SERVER['REQUEST_ID'])) {
+      # Use what the web server (nginx only?) has provided.
+      $c->request_id = $_SERVER['REQUEST_ID'];
+
+    } else if (isset($_SERVER['REQUEST_METHOD'])) {
+      # Make up an ID that should do the job.
+      $c->request_id = hash('crc32b', (
+          $_SERVER['REMOTE_ADDR'] .
+          $_SERVER['REQUEST_TIME_FLOAT'] .
+          $_SERVER['REMOTE_PORT']
+      ));
+
+    } else {
+      # probably run from a CLI, don't need a request ID.
+      $c->request_id = '';
+    }
+
+    return $c->request_id;
+  }
+
+  function request_id_str() {
+    global $c;
+
+    $request_id_str = '';
+    $request_id = request_id();
+
+    if (isset($request_id) && $request_id != '') {
+      $request_id_str = ": " . $request_id;
+    }
+
+    return $request_id_str;
+  }
+}
+
 /**
  * Return the AWL version
  */
 function awl_version() {
   global $c;
-$c->awl_library_version = 0.46;
+  $c->awl_library_version = 0.65;
   return $c->awl_library_version;
 }

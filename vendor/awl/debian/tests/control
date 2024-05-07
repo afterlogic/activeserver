@@ -1,0 +1,3 @@
+# https://people.debian.org/~eriberto/README.package-tests.html
+Tests: syntax, phpunit
+Depends: libawl-php, php-cli, phpunit

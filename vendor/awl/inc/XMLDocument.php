@@ -41,6 +41,13 @@ class XMLDocument {
   private $root;
 
   /**
+  * This appears to not be used, but was being dynamically added.
+  * Setting to public in case it is used somewhere, for something.
+  * @var next_prefix
+  */
+  public $next_prefix;
+
+  /**
   * Simple XMLDocument constructor
   *
   * @param array $namespaces An array of 'namespace' => 'prefix' pairs, where the prefix is used as a short form for the namespace.

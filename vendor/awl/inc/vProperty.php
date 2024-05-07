@@ -178,7 +178,7 @@ class vProperty extends vObject {
                     $name = strtoupper($v);
                     $value = null;
                 }
-                if ( preg_match( '{^"(.*)"$}', $value, $matches) ) {
+                if ( isset($value) && preg_match( '{^"(.*)"$}', $value, $matches) ) {
                     $value = $matches[1];
                 }
                 if ( isset($this->parameters[$name]) && is_array($this->parameters[$name]) ) {
@@ -433,13 +433,14 @@ class vProperty extends vObject {
     /**
      * Test a PROP-FILTER or PARAM-FILTER and return a true/false
      * PROP-FILTER (is-defined | is-not-defined | ((time-range | text-match)?, param-filter*))
-     * PARAM-FILTER (is-defined | is-not-defined | ((time-range | text-match)?, param-filter*))
+     * PARAM-FILTER (is-not-defined | text-match?)
      *
      * @param array $filter An array of XMLElement defining the filter
+     * @param bool  $matchAll If true, all given filters must match (AND), otherwise a single match suffices (OR)
      *
      * @return boolean Whether or not this vProperty passes the test
      */
-    function TestFilter( $filters ) {
+    function TestFilter( $filters, $matchAll = true ) {
         foreach( $filters AS $k => $v ) {
             $tag = $v->GetNSTag();
 //      dbg_error_log( 'vCalendar', "vProperty:TestFilter: '%s'='%s' => '%s'", $this->name, $tag, $this->content );
@@ -460,65 +461,37 @@ class vProperty extends vObject {
 
                 case 'urn:ietf:params:xml:ns:carddav:text-match':
                 case 'urn:ietf:params:xml:ns:caldav:text-match':
-                    $search = $v->GetContent();
                     // Call the Value() getter method to get hold of the vProperty content - need to ensure parsing has occurred
                     $haystack = $this->Value();
-                    $match = isset($haystack);
-                    if ( $match ) {
-                             $collation = $v->GetAttribute("collation");
-                             switch( strtolower($collation) ) {
-                             case 'i;octet':
-                                 // don't change search and haystack
-                                 break;
-                             case 'i;ascii-casemap':
-                             case 'i;unicode-casemap':
-                             default:
-                                 // for ignore case search we transform
-                                 // search and haystack to lowercase
-                                 $search   = strtolower( $search );
-                                 $haystack = strtolower( $haystack );
-                                 break;
-                             }
-
-                             $matchType = $v->GetAttribute("match-type");
-                             switch( strtolower($matchType) ) {
-                             case 'equals':
-                                 $match = ( $haystack === $search );
-                                 break;
-                             case 'starts-with':
-                                $length = strlen($search);
-                                 if ($length == 0) {
-                                     $match = true;
-                                 } else {
-                                     $match = !strncmp($haystack, $search, $length);
-                                 }
-                                 break;
-                             case 'ends-with':
-                                $length = strlen($search);
-                                 if ($length == 0) {
-                                     $match = true;
-                                 } else {
-                                     $match = ( substr($haystack, -$length) === $search );
-                                 }
-                                 break;
-                             default: // contains
-                                 $match = strstr( $haystack, $search );
-                                 break;
-                             }
-                    }
-
-                    $negate = $v->GetAttribute("negate-condition");
-                    if ( isset($negate) && strtolower($negate) == "yes" ) {
-                             $match = !$match;
-                    }
-                    if ( ! $match ) return false;
+                    $match = $this->TestTextMatch($v, $haystack);
+                    // Early exit: OR match can stop if we have on success, AND match can stop if we have a fail
+                    if ( $match != $matchAll ) return $match;
                     break;
 
                 case 'urn:ietf:params:xml:ns:carddav:param-filter':
                 case 'urn:ietf:params:xml:ns:caldav:param-filter':
                     $subfilter = $v->GetContent();
                     $parameter = $this->GetParameterValue($v->GetAttribute("name"));
-                    if ( ! $this->TestParamFilter($subfilter,$parameter) ) return false;
+
+                    if (empty($subfilter)) {
+                        // param-filter without subfilter matches if the parameter is defined
+                        $match = isset($parameter);
+                    } else {
+                        if (!isset($parameter)) {
+                            $parameter = [ null ];
+                        } elseif (!is_array($parameter)) {
+                            $parameter = explode(',', $parameter);
+                        }
+
+                        $match = false;
+                        foreach ($parameter as $param) {
+                            $match = $this->TestParamFilter($subfilter,$param);
+                            if ($match) break;
+                        }
+                    }
+
+                    // Early exit: OR match can stop if we have on success, AND match can stop if we have a fail
+                    if ( $match != $matchAll ) return $match;
                     break;
 
                 default:
@@ -526,11 +499,80 @@ class vProperty extends vObject {
                     break;
             }
         }
-        return true;
+
+        // AND-case: all matched; OR-case: all failed
+        return $matchAll;
     }
 
     function fill($sp, $en, $pe){
 
+    }
+
+    function TestTextMatch( $filter, $haystack ) {
+        // if the property / parameter is not defined, the prop-filter/param-filter fails
+        if (!isset($haystack)) {
+            return false;
+        }
+
+        $search = $filter->GetContent();
+        $collation = $filter->GetAttribute("collation");
+        if (! isset($collation)) {
+            $collation = '';
+        }
+        switch( strtolower($collation) ) {
+            case 'i;octet':
+                // don't change search and haystack
+                break;
+            case 'i;ascii-casemap':
+            case 'i;unicode-casemap':
+            default:
+                // for ignore case search we transform
+                // search and haystack to lowercase
+                $search   = strtolower( $search );
+                $haystack = strtolower( $haystack );
+                break;
+        }
+
+        $matchType = $filter->GetAttribute("match-type");
+        if (! isset($matchType)) {
+            $matchType = '';
+        }
+        switch( strtolower($matchType) ) {
+            case 'equals':
+                $match = ( $haystack === $search );
+                break;
+            case 'starts-with':
+                $length = strlen($search);
+                if ($length == 0) {
+                    $match = true;
+                } else {
+                    $match = !strncmp($haystack, $search, $length);
+                }
+                break;
+            case 'ends-with':
+                $length = strlen($search);
+                if ($length == 0) {
+                    $match = true;
+                } else {
+                    $match = ( substr($haystack, -$length) === $search );
+                }
+                break;
+            default: // contains
+                $length = strlen($search);
+                if ($length == 0) {
+                    $match = true;
+                } else {
+                    $match = strstr( $haystack, $search );
+                }
+                break;
+        }
+
+        $negate = $filter->GetAttribute("negate-condition");
+        if ( isset($negate) && strtolower($negate) == "yes" ) {
+            $match = !$match;
+        }
+
+        return $match;
     }
 
     function TestParamFilter( $filters, $parameter_value ) {
@@ -538,11 +580,6 @@ class vProperty extends vObject {
             $subtag = $v->GetNSTag();
 //      dbg_error_log( 'vCalendar', "vProperty:TestParamFilter: '%s'='%s' => '%s'", $this->name, $subtag, $parameter_value );
             switch( $subtag ) {
-                case 'urn:ietf:params:xml:ns:caldav:is-defined':
-                case 'urn:ietf:params:xml:ns:carddav:is-defined':
-                    if ( empty($parameter_value) ) return false;
-                    break;
-
                 case 'urn:ietf:params:xml:ns:caldav:is-not-defined':
                 case 'urn:ietf:params:xml:ns:carddav:is-not-defined':
                     if ( ! empty($parameter_value) ) return false;
@@ -554,13 +591,7 @@ class vProperty extends vObject {
 
                 case 'urn:ietf:params:xml:ns:carddav:text-match':
                 case 'urn:ietf:params:xml:ns:caldav:text-match':
-                    $search = $v->GetContent();
-                    $match = false;
-                    if ( !empty($parameter_value) ) $match = strstr( $this->content, $search );
-                    $negate = $v->GetAttribute("negate-condition");
-                    if ( isset($negate) && strtolower($negate) == "yes" ) {
-                        $match = !$match;
-                    }
+                    $match = $this->TestTextMatch($v, $parameter_value);
                     if ( ! $match ) return false;
                     break;
 

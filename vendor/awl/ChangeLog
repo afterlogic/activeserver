@@ -1,3 +1,139 @@
+2024-03-27 Andrew Ruthven <andrew@etc.gen.nz>
+	* Add a request ID to each logline (resolves #27).
+
+2024-02-28 Andrew Ruthven <andrew@etc.gen.nz>
+	* Further fixes for PHP 8.1 and 8.2.
+
+2024-01-21 Andrew Ruthven <andrew@etc.gen.nz>
+	* Allow a user's password to be a number.
+
+2023-07-02 Athos Ribeiro <athoscribeiro@gmail.com>
+	* Add support for phpunit 10.
+
+2023-03-23 Florian Schlichting <fsfs@debian.org>
+	* Use array_merge.
+
+2023-03-02 Florian Schlichting <fsfs@debian.org>
+	* release awl 0.64
+	* add Debian autopkgtests
+
+2022-12-17 Andrew Ruthven <andrew@etc.gen.nz>
+	* Fix indent for for line and add some blank lines to improve readability
+
+2022-10-22 ruliane <ruliane+github@ruliane.net>
+	* Minor fix: prevent warning when argument is not defined
+
+2023-02-04 Andrew Ruthven <andrew@etc.gen.nz>
+	* Handle strings to be translated over 4096 characters.
+	* Add unique constraints for user_role and tmp_password
+
+2022-12-18 Andrew Ruthven <andrew@etc.gen.nz>
+	* Bump the version, so I can check for this in DAViCal
+
+2022-12-16 Andrew Ruthven <andrew@etc.gen.nz>
+	* PHP uses . as a string concatenation operator, not +.
+	* Support the cas_token approach in PECL 3.0.0
+	* Sanity check that we have an array
+	* Make it explicit why Memcache isn't working
+	* Need to enable the Headers module for Apache2 for tests
+
+2022-12-10 Andrew Ruthven <andrew@etc.gen.nz>
+	* Handle when a log line is passed in which contains % characters, and no arguments
+	* Set a component for logging
+	* Guard incase the component isn't provided
+	* Ensure that rendered is defined as a property.
+	* Ensure that next_prefix is defined as a property.
+	* Debian Unstable has PostgreSQL 15 now
+	* Ensure that location_line and location_file are defined as properties.
+
+2021-08-18 linda.fliss <linda.fliss@iserv.eu>
+	* added missing null check to prevent warning on in_array call
+
+2022-10-04 Florian Schlichting <fsfs@debian.org>
+	* release awl 0.63
+
+2022-02-13 Andrew Ruthven <puck@catalyst.net.nz>
+	* Sid has PostgreSQL 14 now - missed one
+	* Sid has PostgreSQL 14 now
+	* Update signature to modern version.
+	* Add a test on Bullseye
+	* Fix syntax
+	* Fix syntax
+	* Fixes for PHP 8.1
+
+2022-02-05 Andrew Ruthven <puck@catalyst.net.nz>
+	* Fix a short array error when running with PHP 8
+
+2021-03-01 Florian Schlichting <fsfs@debian.org>
+	* release awl 0.62
+	* actually set the search_path in SetSearchPath() (fixes #23)
+
+2021-02-08 Florian Schlichting <fsfs@debian.org>
+	* TestTextMatch: treat contains the same as starts-with and ends-with when the needle is empty
+
+2021-02-05 Michael Stilkerich <ms@mike2k.de>
+	* Fix param-filter that checks if a parameter is defined
+	* Fix param-filter for multi-value parameters with TYPE=T1,T2 format
+	* Fix GetProperties: Select properties with group prefix
+	* Fix: GetProperties must treat property names as case-insensitive
+
+2021-02-07 Andrew Ruthven <puck@catalyst.net.nz>
+	* Make sure that DAViCal can create its own log files
+	* If length is 0, then this match should fail - regression tests pass
+	* Replicate checking the length of $search
+
+2021-02-06 Andrew Ruthven <puck@catalyst.net.nz>
+	* Another attempt to suppress a strstr error.
+	* PHP 7.3.12 needs the needle to be defined
+
+2021-02-05 Florian Schlichting <fsfs@debian.org>
+	* param-filter: fix a typo (array case), explode comma-separated multivalues (string case)
+
+2021-01-28 Michael Stilkerich <ms@mike2k.de>
+	* Fix merge with master for param-filter is-not-defined case
+	* Fix wrong statement in comment
+
+2021-01-24 Michael Stilkerich <ms@mike2k.de>
+	* Support propfilter test="anyof"
+
+2021-02-03 Florian Schlichting <fsfs@debian.org>
+	* fix PHP8 deprecation warning: Required parameter $prefix follows optional parameter $ftype in inc/DataEntry.php on line 652
+	* CI: add test_buster_latestphp
+	* CI: run davical testsuite in addition to PHP syntax and unit tests
+
+2021-01-24 Michael Stilkerich <ms@mike2k.de>
+	* Fix regression on allof match for multiple prop-filter elements
+
+2021-01-24 Andrew Ruthven <andrew@etc.gen.nz>
+	* Use same indenting and style as other code
+
+2021-01-23 Michael Stilkerich <ms@mike2k.de>
+	* Fix param-filter/is-not-defined behavior
+	* Fail text-match if property/parameter is not defined
+
+2021-01-31 Andrew Ruthven <puck@catalyst.net.nz>
+	* Warn if the hook function is missing
+
+2021-01-23 Michael Stilkerich <ms@mike2k.de>
+	* Negated text-match must not match non-existing properties
+
+2021-01-25 Andrew Ruthven <andrew@etc.gen.nz>
+	* Handle a property having multiple parameters.
+
+2021-01-23 Michael Stilkerich <ms@mike2k.de>
+	* Fix param-filter/text-match evaluation (Issue #21)
+
+2021-01-24 Andrew Ruthven <puck@catalyst.net.nz>
+	* Update logic to match the previous logic.
+
+2021-01-23 Andrew Ruthven <puck@catalyst.net.nz>
+	* Correctly filter on other properties
+
+2020-04-28 Debian Janitor <janitor@jelmer.uk>
+	* Changed vcs type from git to Git based on URL.
+	* Set upstream metadata fields: Bug-Submit, Repository, Repository-Browse.
+	* Wrap long lines in changelog entries: 0.37, 0.33.
+
 2020-04-13 Florian Schlichting <fsfs@debian.org>
 	* release awl 0.61
 	* Update AUTHORS and ChangeLog

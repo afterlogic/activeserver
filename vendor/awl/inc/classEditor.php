@@ -621,28 +621,47 @@ class Editor
           }
         }
         return $field->RenderLabel('<input type="hidden" value="off" name="'.$field_name.'"><input class="entry" type="checkbox" value="on" name="'.$field_name.'"'.$checked.$attributes.'>' );
+
       case "input":
         $size = (isset($part3) ? $part3 : 6);
-        return "<input class=\"entry\" value=\"".htmlspecialchars($field_value)."\" name=\"$field_name\" size=\"$size\"$attributes>";
+        return "<input class=\"entry\" value=\""
+          . (isset($field_value) ? htmlspecialchars($field_value) : '')
+          . "\" name=\"$field_name\" size=\"$size\"$attributes>";
+
       case "file":
         $size = (isset($part3) ? $part3 : 30);
-        return "<input type=\"file\" class=\"entry\" value=\"".htmlspecialchars($field_value)."\" name=\"$field_name\" size=\"$size\"$attributes>";
+        return "<input type=\"file\" class=\"entry\" value=\""
+          . (isset($field_value) ? htmlspecialchars($field_value) : '')
+          . "\" name=\"$field_name\" size=\"$size\"$attributes>";
+
       case "money":
         $size = (isset($part3) ? $part3 : 8);
-        return "<input class=\"money\" value=\"".htmlspecialchars(sprintf("%0.2lf",$field_value))."\" name=\"$field_name\" size=\"$size\"$attributes>";
+        return "<input class=\"money\" value=\""
+          . (isset($field_value) ? htmlspecialchars(sprintf("%0.2lf",$field_value)) : '')
+          . "\" name=\"$field_name\" size=\"$size\"$attributes>";
+
       case "date":
         $size = (isset($part3) ? $part3 : 10);
-        return "<input class=\"date\" value=\"".htmlspecialchars($field_value)."\" name=\"$field_name\" size=\"$size\"$attributes>";
+        return "<input class=\"date\" value=\""
+          . (isset($field_value) ? htmlspecialchars($field_value) : '')
+          . "\" name=\"$field_name\" size=\"$size\"$attributes>";
+
       case "textarea":
         list( $cols, $rows ) = explode( 'x', $part3);
-        return "<textarea class=\"entry\" name=\"$field_name\" rows=\"$rows\" cols=\"$cols\"$attributes>".htmlspecialchars($field_value)."</textarea>";
+        return "<textarea class=\"entry\" name=\"$field_name\" rows=\"$rows\" cols=\"$cols\"$attributes>"
+          . (isset($field_value) ? htmlspecialchars($field_value) : '')
+          . "</textarea>";
+
       case "hidden":
         return sprintf( "<input type=\"hidden\" value=\"%s\" name=\"$field_name\">", htmlspecialchars($field_value) );
+
       case "password":
         return sprintf( "<input type=\"password\" value=\"%s\" name=\"$field_name\" size=\"10\">", htmlspecialchars($part3) );
+
       case "encval":
       case "enc":
         return htmlspecialchars($field_value);
+
       case "submit":
         $action =  ( $this->RecordAvailable ? 'update' : 'insert' );
         return sprintf('<input type="hidden" name="_editor_action[%s]" value="%s"><input type="submit" class="submit" name="%s" value="%s">',

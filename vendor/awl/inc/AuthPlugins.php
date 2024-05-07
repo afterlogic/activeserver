@@ -37,7 +37,7 @@ require_once('DataUpdate.php');
 function auth_other_awl( $username, $password ) {
   global $c;
 
-  $authconn = pg_Connect($c->authenticate_hook['config']['connection']);
+  $authconn = pg_connect($c->authenticate_hook['config']['connection']);
   if ( ! $authconn ) {
     echo <<<EOERRMSG
   <html><head><title>Database Connection Failure</title></head><body>

@@ -415,11 +415,30 @@
                 $this->explode();
             }
             $properties = array();
-            $testtypes = (gettype($type) == 'string' ? array( $type => true ) : $type );
+
+            if (isset($type)) {
+                if (gettype($type) == 'string') {
+                    $testtypes = array( strtoupper($type) => true );
+                } else {
+                    $testtypes = array();
+                    foreach ($type as $propname => $val) {
+                        $testtypes[strtoupper($propname)] = $val;
+                    }
+                }
+            }
+
             foreach( $this->properties AS $k => $v ) {
-                $name = $v->Name(); //get Property name (string)
-                $name = preg_replace( '/^.*[.]/', '', $name ); //for grouped properties we remove prefix itemX.
-                if ( $type == null || (isset($testtypes[$name]) && $testtypes[$name])) {
+                $fullname = $v->Name(); //get Property name (string); will be uppercase
+                $propname = preg_replace( '/^.*[.]/', '', $fullname ); //for grouped properties we remove prefix itemX.
+
+                // if asked for a groupless property (e.g. EMAIL), return all properties of that type including those
+                // with group prefix (-> $propname matches)
+                // if asked for a property with group prefix (e.g. item1.EMAIL), return only properties with that group
+                // (-> $fullname matches)
+                if ( $type == null
+                    || (isset($testtypes[$propname]) && $testtypes[$propname])
+                    || (isset($testtypes[$fullname]) && $testtypes[$fullname])
+                ) {
                     $properties[] = $v;
                 }
             }
@@ -980,21 +999,55 @@
             }
             else {
 //              dbg_error_log( 'vCalendar', ":TestFilter: Wanted '%s' from missing sub-properties => false", $subtag );
-              $negate = $subfilter[0]->GetAttribute("negate-condition");
-              if ( empty($negate) || strtolower($negate) != 'yes' ) return false;
+              return false;
             }
           }
           else {
-            foreach( $properties AS $kk => $property ) {
-              if ( !empty($subfilter) && !$property->TestFilter($subfilter) ) return false;
-            }
+              // if we have multiple subfilters: do we need all to match or is a single match sufficient?
+              $matchAll = $v->GetAttribute("test");
+              if (isset($matchAll) && $matchAll == "allof") {
+                  $matchAll = true;
+              } else {
+                  $matchAll = false;
+              }
+
+              // at this point we know we have at least one of the properties to filter
+              $matchCount = 0;
+
+              // We need to allow for when a property is repeated, our match
+              // might not be the first property.
+              foreach( $properties AS $kk => $property ) {
+                  if ( empty($subfilter) || $property->TestFilter($subfilter, $matchAll) ) {
+                      $matchCount++;
+                  }
+              }
+
+              // in case of a param-filter/is-not-defined, there must be no single property with that parameter
+              // otherwise (text-match), a single match is sufficient
+              $matchesNeeded = 1;
+              if ( $subtag == 'urn:ietf:params:xml:ns:caldav:param-filter'
+                  || $subtag == 'urn:ietf:params:xml:ns:carddav:param-filter' ) {
+                  $paramSubFilter = $subfilter[0]->GetContent();
+                  if (!empty($paramSubFilter)) {
+                      $paramSubFilterTag = $paramSubFilter[0]->getNSTag();
+
+                      if ( $paramSubFilterTag == 'urn:ietf:params:xml:ns:caldav:is-not-defined'
+                          || $paramSubFilterTag == 'urn:ietf:params:xml:ns:carddav:is-not-defined' ) {
+                          // none of the properties must have the parameter
+                          $matchesNeeded = count($properties);
+                      }
+                  }
+              }
+
+              if ($matchCount < $matchesNeeded) {
+                  return false;
+              }
           }
-          break;
+        break;
       }
     }
     return true;
   }
-
-    }
+}
 
 

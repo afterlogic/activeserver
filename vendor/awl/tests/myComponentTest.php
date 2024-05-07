@@ -14,7 +14,7 @@ if (!class_exists('\PHPUnit_Framework_TestCase') &&
     class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 }
 
-class vComponentTest extends PHPUnit_Framework_TestCase {
+class myComponentTest extends PHPUnit_Framework_TestCase {
     public $testdata = <<<EOBODY1
 BEGIN:VCALENDAR
 PRODID:-//davical.org//NONSGML AWL Calendar//EN

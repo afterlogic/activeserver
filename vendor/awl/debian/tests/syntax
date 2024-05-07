@@ -1,0 +1,20 @@
+#!/bin/bash
+# run our test suite, but on the installed package
+
+set -e
+
+# 1) simple php syntax check
+for PHP in /usr/share/awl/inc/*.php
+do
+    php -l ${PHP} >> $AUTOPKGTEST_TMP/test-syntax
+done
+
+if grep -v 'No syntax errors detected' $AUTOPKGTEST_TMP/test-syntax
+then
+    cat $AUTOPKGTEST_TMP/test-syntax
+    exit 1
+else
+    echo "OK (Syntax checked)";
+fi
+rm $AUTOPKGTEST_TMP/test-syntax
+

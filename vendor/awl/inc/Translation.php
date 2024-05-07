@@ -63,7 +63,8 @@ if ( !function_exists('translate') ) {
   */
   if ( function_exists('gettext') ) {
     function translate( $en ) {
-      if ( ! isset($en) || $en == '' ) return $en;
+      // Maximum string length supported by gettext is 4096.
+      if ( ! isset($en) || $en == '' || strlen($en) > 4096 ) return $en;
       $xl = gettext($en);
       dbg_error_log('I18N','Translated =%s= into =%s=', $en, $xl );
       return $xl;

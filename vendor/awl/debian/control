@@ -4,11 +4,12 @@ Priority: optional
 Maintainer: Davical Development Team <davical-devel@lists.sourceforge.net>
 Uploaders: Andrew McMillan <awm@debian.org>,
  Florian Schlichting <fsfs@debian.org>
-Standards-Version: 4.5.0
-Build-Depends: debhelper-compat (= 12), jdupes, doxygen, phpunit
-Vcs-git: https://gitlab.com/davical-project/awl.git
-Vcs-browser: https://gitlab.com/davical-project/awl
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13), jdupes, doxygen, phpunit
+Vcs-Browser: https://gitlab.com/davical-project/awl
+Vcs-Git: https://gitlab.com/davical-project/awl.git
 Homepage: https://www.davical.org
+Rules-Requires-Root: no
 
 Package: libawl-php
 Architecture: all

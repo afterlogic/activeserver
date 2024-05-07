@@ -82,7 +82,7 @@ class AwlDBDialect {
   *
   * The database will be opened.
   *
-  * @param string $connection_string The PDO connection string, in all it's glory
+  * @param string $connection_string The PDO connection string, in all its glory
   * @param string $dbuser The database username to connect as
   * @param string $dbpass The database password to connect with
   * @param array  $options An array of driver options
@@ -118,7 +118,8 @@ class AwlDBDialect {
     switch ( $this->dialect ) {
       case 'pgsql':
         if ( $search_path == null ) $search_path = 'public';
-        $sql = "SET search_path TO " . $this->Quote( $search_path, 'identifier' );
+        $sql = "SET search_path TO " . $search_path;
+        $sth = $this->db->query($sql);
         return $sql;
     }
   }
@@ -164,10 +165,12 @@ class AwlDBDialect {
 
     switch ( $this->dialect ) {
       case 'pgsql':
-        list( $schema, $table ) = explode('.', $tablename_string, 2);
-        if ( empty($table) ) {
+        $schema = null;
+        $table = null;
+        if ( strpos($tablename_string, '.') ) {
+          list( $schema, $table ) = explode('.', $tablename_string, 2);
+        } else {
           $table = $tablename_string;
-          $schema = null;
         }
 
         $sql = 'SELECT f.attname AS fieldname, t.typname AS typename, f.atttypmod AS precision FROM pg_attribute f';
@@ -177,7 +180,7 @@ class AwlDBDialect {
         $sql .= ' WHERE relname = '.$this->Quote($table,PDO::PARAM_STR).' AND attnum >= 0 ';
         if ( isset($schema) ) $sql .= ' AND ns.nspname = '.$this->Quote($schema,PDO::PARAM_STR);
         $sql .= ' ORDER BY f.attnum';
-        dbg_error_log($sql);
+        dbg_error_log('AwlDBDialect', $sql);
         return $sql;
     }
   }

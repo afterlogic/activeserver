@@ -137,9 +137,13 @@ class BrowserColumn
       $value = $session->FormattedDate( $value, $this->Type );
     }
 
-    if ( $this->Hook && function_exists($this->Hook) ) {
-      dbg_error_log( "Browser", ":Browser: Hook for $this->Hook on column $this->Field");
-      $value = call_user_func( $this->Hook, $value, $this->Field, $this->current_row );
+    if ( $this->Hook ) {
+      if ( function_exists($this->Hook) ) {
+        dbg_error_log( "Browser", ":Browser: Hook for $this->Hook on column $this->Field");
+        $value = call_user_func( $this->Hook, $value, $this->Field, $this->current_row );
+      } else {
+        dbg_error_log( "Browser", ":Browser: Hook for $this->Hook on column $this->Field doesn't exist");
+      }
     }
 
     if ( $this->Translatable ) {
@@ -205,6 +209,7 @@ class Browser
   var $match_function;
   var $DivOpen;
   var $DivClose;
+  var $current_row;
 
   /**
   * The Browser class constructor

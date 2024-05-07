@@ -15,7 +15,7 @@ if (!class_exists('\PHPUnit_Framework_TestCase') &&
     class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 }
 
-class vPropertyTest extends PHPUnit_Framework_TestCase {
+class myPropertyTest extends PHPUnit_Framework_TestCase {
 
     function getData($filename){
         $file = fopen($filename, 'r');

@@ -58,7 +58,7 @@ class myCalendarTest extends PHPUnit_Framework_TestCase {
 
         $data = explode("\n",$this->getData('tests/data/0244-MOZ-POST-FB.test'));
 
-        $data = implode($data, "\r\n");
+        $data = implode("\r\n", $data);
 
         $mycalendar = new vCalendar($data);
 //        foreach($mycalendar->GetComponents() as $comp){

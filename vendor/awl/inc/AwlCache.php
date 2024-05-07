@@ -21,25 +21,34 @@ class AwlCache {
     if ( isset(self::$working) ) return;
 
     self::$working = false;
-    if ( isset($c->memcache_servers) && class_exists('Memcached') ) {
-      dbg_error_log('Cache', 'Using Memcached interface connection');
-      self::$servers = $c->memcache_servers;
-      self::$m = new Memcached();
-      foreach( self::$servers AS $v ) {
-        dbg_error_log('Cache', 'Adding server '.$v);
-        $server = explode(',',$v);
-        if ( isset($server[2]) )
-          self::$m->addServer($server[0],$server[1],$server[2]);
-        else
-          self::$m->addServer($server[0],$server[1]);
-      }
-      self::$working = true;
-      // Hack to allow the regression tests to flush the cache at start
-      if ( isset($_SERVER['HTTP_X_DAVICAL_FLUSH_CACHE'])) $this->flush();
+    if ( ! isset($c->memcache_servers) ) {
+      dbg_error_log('Cache', "memcache_servers isn't set, using NoCache dummy interface");
+      return;
+    } else if (! is_array($c->memcache_servers) ) {
+      dbg_error_log('Cache', "memcache_servers must be an array, using NoCache dummy interface");
+      return;
     }
-    else {
-      dbg_error_log('Cache', 'Using NoCache dummy interface');
+
+    if (! class_exists('Memcached') ) {
+      dbg_error_log('Cache', "Memcached class isn't available, using NoCache dummy interface");
+      return;
     }
+
+    dbg_error_log('Cache', 'Using Memcached interface connection');
+    self::$servers = $c->memcache_servers;
+    self::$m = new Memcached();
+    foreach( self::$servers AS $v ) {
+      dbg_error_log('Cache', 'Adding server '.$v);
+      $server = explode(',',$v);
+      if ( isset($server[2]) )
+        self::$m->addServer($server[0],$server[1],$server[2]);
+      else
+        self::$m->addServer($server[0],$server[1]);
+    }
+    self::$working = true;
+
+    // Hack to allow the regression tests to flush the cache at start
+    if ( isset($_SERVER['HTTP_X_DAVICAL_FLUSH_CACHE'])) $this->flush();
   }
 
   /**
@@ -83,16 +92,40 @@ class AwlCache {
     if ( !self::$working ) return false;
     $ourkey = self::nskey($namespace,$key);
     $nskey = self::nskey($namespace,null);
-    $keylist = self::$m->get( $nskey, null, $cas_token );
+    $cas_token = null;
+
+    if (defined('Memcached::GET_EXTENDED')) {
+      $result = self::$m->get( $nskey, null, Memcached::GET_EXTENDED);
+
+      if (is_array($result)) {
+        $keylist = $result['value'];
+        $cas_token = $result['cas'];
+      }
+    } else {
+      $keylist = self::$m->get( $nskey, null, $cas_token );
+    }
+
     if ( isset($keylist) && is_array($keylist) ) {
       if ( !isset($keylist[$ourkey]) ) {
         $keylist[$ourkey] = 1;
         $success = self::$m->cas( $cas_token, $nskey, $keylist );
+
         $i=0;
         while( !$success && $i++ < 10 && self::$m->getResultCode() == Memcached::RES_DATA_EXISTS ) {
-          $keylist = self::$m->get( $nskey, null, $cas_token );
+
+          if (defined('Memcached::GET_EXTENDED')) {
+            $result = self::$m->get( $nskey, null, Memcached::GET_EXTENDED);
+            if (is_array($result)) {
+              $keylist = $result['value'];
+              $cas_token = $result['cas'];
+            }
+          } else {
+            $keylist = self::$m->get( $nskey, null, $cas_token );
+          }
+
           if ( $keylist === false ) return false;
           if ( isset($keylist[$ourkey]) ) break;
+
           $keylist[$ourkey] = 1;
           $success = self::$m->cas( $cas_token, $nskey, $keylist );
         }
@@ -117,13 +150,22 @@ class AwlCache {
     if ( !self::$working ) return false;
     $nskey = self::nskey($namespace,$key);
     dbg_error_log('Cache', 'Deleting from cache key "'.$nskey.'"');
+
     if ( isset($key) ) {
       self::$m->delete( $nskey );
     }
     else {
-      $keylist = self::$m->get( $nskey, null, $cas_token );
+      if (defined('Memcached::GET_EXTENDED')) {
+        $result = self::$m->get( $nskey, null, Memcached::GET_EXTENDED);
+        if (is_array($result)) {
+          $keylist = $result['value'];
+          $cas_token = $result['cas'];
+        }
+      } else {
+        $keylist = self::$m->get( $nskey, null, $cas_token );
+      }
       if ( isset($keylist) ) {
-      self::$m->delete( $nskey );
+        self::$m->delete( $nskey );
         if ( is_array($keylist) ) {
           foreach( $keylist AS $k => $v ) self::$m->delete( $k );
         }
@@ -147,7 +189,7 @@ class AwlCache {
   function acquireLock( $something, $wait_for = 5 ) {
     if ( !self::$working ) return $something;
     $wait_until = time() + $wait_for;
-    while( self::$m->add('_lock_'+$something,1,5) === false && time() < $wait_until ) {
+    while( self::$m->add('_lock_' . $something, 1, 5) === false && time() < $wait_until ) {
       usleep(10000);
     }
     return $something;
@@ -159,7 +201,7 @@ class AwlCache {
    */
   function releaseLock( $something ) {
     if ( !self::$working ) return;
-    self::$m->delete('_lock_'+$something);
+    self::$m->delete('_lock_' . $something);
   }
 }
 

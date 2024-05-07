@@ -157,7 +157,7 @@ class XMLElement {
           $elements[] = $v;
         }
         if ( $recursive ) {
-          $elements = $elements + $v->GetElements($tag,true);
+          $elements = array_merge( $elements, $v->GetElements($tag,true) );
         }
       }
     }
@@ -320,7 +320,7 @@ class XMLElement {
 
     $r .= substr("                        ",0,$indent) . '<' . $tagname . $attr;
 
-    if ( (is_array($this->content) && count($this->content) > 0) || (!is_array($this->content) && strlen($this->content) > 0) ) {
+    if ( isset($this->content) && ((is_array($this->content) && count($this->content) > 0) || (!is_array($this->content) && strlen($this->content) > 0)) ) {
       $r .= ">";
       $r .= $this->RenderContent($indent,$nslist,$force_xmlns);
       $r .= '</' . $tagname.">\n";
@@ -346,22 +346,26 @@ class XMLElement {
 * @param intref &$start_from A pointer to our current integer offset into $xmltags
 * @return mixed Either a single XMLElement, or an array of XMLElement objects.
 */
-function BuildXMLTree( $xmltags, &$start_from ) {
+function BuildXMLTree( $xmltags, &$start_from = 0 ) {
   $content = array();
-
-  if ( !isset($start_from) ) $start_from = 0;
 
   for( $i=0; $i < 50000 && isset($xmltags[$start_from]); $i++) {
     $tagdata = $xmltags[$start_from++];
+
     if ( !isset($tagdata) || !isset($tagdata['tag']) || !isset($tagdata['type']) ) break;
+
     if ( $tagdata['type'] == "close" ) break;
+
     $xmlns = null;
     $tag = $tagdata['tag'];
+
     if ( preg_match( '{^(.*):([^:]*)$}', $tag, $matches) ) {
       $xmlns = $matches[1];
       $tag = $matches[2];
     }
+
     $attributes = ( isset($tagdata['attributes']) ? $tagdata['attributes'] : false );
+
     if ( $tagdata['type'] == "open" ) {
       $subtree = BuildXMLTree( $xmltags, $start_from );
       $content[] = new XMLElement($tag, $subtree, $attributes, $xmlns );

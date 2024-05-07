@@ -649,7 +649,7 @@ class EntryForm
   * A utility function for a data entry line, where the prompt is a drop-down.
   * @return string The HTML fragment for the drop-down prompt and associated entry field.
   */
-  function MultiEntryLine( $prompt_options, $prompt_name, $default_prompt, $format, $ftype='', $fname='', $attributes='', $prefix )
+  function MultiEntryLine( $prompt_options, $prompt_name, $default_prompt, $format, $ftype='', $fname='', $attributes='', $prefix='' )
   {
 
     $prompt = "<select name=\"$prompt_name\">";

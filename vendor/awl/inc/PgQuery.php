@@ -33,7 +33,7 @@
 */
 
 
-if ( ! function_exists('pg_Connect') ) {
+if ( ! function_exists('pg_connect') ) {
   echo <<<EOERRMSG
 <html>
 <head>
@@ -70,7 +70,7 @@ function connect_configured_database() {
   if ( isset($c->pg_connect) && is_array($c->pg_connect) ) {
     foreach( $c->pg_connect AS $k => $v ) {
       if ( !$dbconn ) {
-        if ( $dbconn = ((isset($c->use_persistent) && $c->use_persistent) ? pg_pConnect($v) : pg_Connect($v) ) ) break;
+        if ( $dbconn = ((isset($c->use_persistent) && $c->use_persistent) ? pg_pconnect($v) : pg_connect($v) ) ) break;
       }
     }
   }
@@ -327,7 +327,7 @@ class PgQuery
   * @access public
   */
   /**
-  * number of rows from pg_numrows - for fetching result
+  * number of rows from pg_num_rows - for fetching result
   * should be read-only
   * @var int
   */
@@ -492,7 +492,7 @@ class PgQuery
 
     $t1 = microtime(); // get start time
     $this->result = @pg_exec( $this->connection, $this->querystring ); // execute the query
-    $this->rows = ($this->result ? pg_numrows($this->result) : -1); // number of rows returned
+    $this->rows = ($this->result ? pg_num_rows($this->result) : -1); // number of rows returned
     $t2 = microtime(); // get end time
     $i_took = duration( $t1, $t2 );   // calculate difference
     $c->total_query_time += $i_took;
@@ -500,7 +500,7 @@ class PgQuery
 
     if ( !$this->result ) {
      // query simply failed
-      $this->errorstring = @pg_errormessage(); // returns database error message
+      $this->errorstring = @pg_last_error(); // returns database error message
       $this->_log_error( $this->location, 'QF', $this->querystring, $line, $file );
       $this->_log_error( $this->location, 'QF', $this->errorstring, $line, $file );
     }
@@ -637,7 +637,7 @@ class PgQuery
         $display_value = $row[1];
         if ( isset($translate) ) $display_value = translate( $display_value );
         if ( isset($maxwidth) ) $display_value = substr( $display_value, 0, $maxwidth);
-        $nextrow = "<option value=\"".htmlspecialchars($row[0])."\"$selected>".htmlspecialchars($display_value)."</option>";
+        $nextrow = "<option value=\"".htmlspecialchars($row[0])."\"$selected>" . (isset($display_value) ? htmlspecialchars($display_value) : '') . "</option>";
         $result .= $nextrow;
       }
     }

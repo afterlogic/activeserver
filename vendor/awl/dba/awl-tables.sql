@@ -49,7 +49,8 @@ CREATE FUNCTION max_roles() RETURNS INT4 AS 'SELECT max(role_no) FROM roles' LAN
 
 CREATE TABLE role_member (
     role_no INT4 REFERENCES roles ( role_no ),
-    user_no INT4 REFERENCES usr ( user_no ) ON DELETE CASCADE
+    user_no INT4 REFERENCES usr ( user_no ) ON DELETE CASCADE,
+    UNIQUE (role_no, user_no)
 );
 
 
@@ -66,6 +67,7 @@ CREATE FUNCTION max_session() RETURNS INT4 AS 'SELECT max(session_id) FROM sessi
 CREATE TABLE tmp_password (
   user_no INT4 REFERENCES usr ( user_no ),
   password TEXT,
-  valid_until TIMESTAMPTZ DEFAULT (current_timestamp + '1 day'::interval)
+  valid_until TIMESTAMPTZ DEFAULT (current_timestamp + '1 day'::interval),
+  UNIQUE (user_no, valid_until)
 );
 COMMIT;

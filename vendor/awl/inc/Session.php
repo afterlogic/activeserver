@@ -9,7 +9,8 @@
 * all session data in the database:
 *  - Session hash is not predictable.
 *  - No clear text information is held in cookies.
-*  - Passwords are generally salted MD5 hashes, but individual users may
+*  - Passwords are generally salted SHA1 hashes (old style MD5
+*    salted/unsalted are also accepted), but individual users may
 *    have plain text passwords set by an administrator.
 *  - Temporary passwords are supported.
 *  - Logout is supported
@@ -34,7 +35,7 @@ require_once('EMail.php');
 * @return boolean Whether or not the user correctly guessed a temporary password within the necessary window of opportunity.
 */
 function check_temporary_passwords( $they_sent, $user_no ) {
-  $sql = 'SELECT 1 AS ok FROM tmp_password WHERE user_no = ? AND password = ? AND valid_until > current_timestamp';
+  $sql = 'SELECT 1 AS ok FROM tmp_password WHERE user_no = ? AND password = text(?) AND valid_until > current_timestamp';
   $qry = new AwlQuery( $sql, $user_no, $they_sent );
   if ( $qry->Exec('Session::check_temporary_passwords') ) {
     dbg_error_log( "Login", " check_temporary_passwords: Rows = ".$qry->rows());
@@ -62,6 +63,12 @@ class Session
   */
   var $roles;
   var $cause = '';
+
+  /**
+  * Session start times for confirmation emails
+  * @var array
+  var $session_start;
+
   /**#@-*/
 
   /**#@+
@@ -113,6 +120,61 @@ class Session
   var $just_logged_in = false;
 
   /**
+  * Is the user active (aka enabled)?
+  * @var boolean
+  */
+  var $active;
+
+  /**
+  * The date and time that the user's email address was confirmed.
+  * @var string
+  */
+  var $email_ok;
+
+  /**
+  * The date and time that the user joined (account created).
+  * @var string
+  */
+  var $joined;
+
+  /**
+  * The date and time that the user's record was last updated.
+  * @var string
+  */
+  var $updated;
+
+  /**
+  * The date and time that the user was last used (not used?).
+  * @var string
+  */
+  var $last_used;
+
+  /**
+  * The user's password.
+  * @var string
+  */
+  var $password;
+
+  /**
+  * The user's config_data. I don't know what type this should be as I can't
+  * see any examples of it being used.
+  * @var string
+  */
+  var $config_data;
+
+  /**
+  * The user's data format type.
+  * @var string
+  */
+  var $date_format_type;
+
+  /**
+  * The user's locale.
+  * @var string
+  */
+  var $locale;
+
+  /**
   * The date and time that the user logged on during their last session.
   * @var string
   */
@@ -124,6 +186,38 @@ class Session
   * @var string
   */
   var $last_session_end;
+
+  /**
+  * The date and time that the users session start.
+  * @var string
+  */
+  var $session_start;
+
+  /**
+  * Session config. I don't know what type this should be as I can't see any
+  * examples of it being used.
+  * @var string
+  */
+  var $session_config;
+
+  /**
+  * The date and time that the users session ends.
+  * @var string
+  */
+  var $session_end;
+
+  /**
+  * Current session key
+  * @var string
+  */
+  var $session_key;
+
+  /**
+  * Flag to indicate if login failed.
+  * @var boolean
+  */
+  var $login_failed = false;
+
   /**#@-*/
 
   /**
@@ -215,7 +309,8 @@ class Session
       for( $i=1; $i < $argc; $i++ ) {
         $args[] = func_get_arg($i);
       }
-      error_log( "$c->sysabbr: " . vsprintf($format,$args) );
+      error_log( sprintf("%s%s: %s", $c->sysabbr, request_id_str(),
+        vsprintf($format, $args) ));
     }
   }
 
@@ -242,14 +337,17 @@ class Session
 
     $format = func_get_arg(1);
     if ( $argc == 2 || ($argc == 3 && func_get_arg(2) == "0" ) ) {
-      error_log( "$c->sysabbr: DBG: $dgroup: $format" );
+      error_log( sprintf("%s%s: DBG: %s: %s", $c->sysabbr, request_id_str(),
+        $dgroup, $format ));
     }
     else {
       $args = array();
       for( $i=2; $i < $argc; $i++ ) {
         $args[] = func_get_arg($i);
       }
-      error_log( "$c->sysabbr: DBG: $dgroup: " . vsprintf($format,$args) );
+
+      error_log( sprintf("%s%s: DBG: %s: %s", $c->sysabbr, request_id_str(),
+        $dgroup, vsprintf($format,$args) ));
     }
   }
 
@@ -586,7 +684,7 @@ EOTEXT;
             $tmp_passwd .= substr( 'ABCDEFGHIJKLMNOPQRSTUVWXYZ+#.-=*%@0123456789abcdefghijklmnopqrstuvwxyz', rand(0,69), 1);
           }
 
-          $q2->QDo('INSERT INTO tmp_password (user_no, password) VALUES(?,?)', array($row->user_no, $tmp_passwd));
+          $q2->QDo('INSERT INTO tmp_password (user_no, password) VALUES (?, ?)', array($row->user_no, $tmp_passwd));
           if ( isset($c->debug_email) ) {
             $debug_to .= "$row->fullname <$row->email> ";
           }
@@ -721,9 +819,10 @@ EOTEXT;
       $this->SendTemporaryPassword();
     }
     else if ( isset($_POST['username']) && isset($_POST['password']) ) {
+      $username = $_POST['username'];
       // Try and log in if we have a username and password
       $this->Login( $_POST['username'], $_POST['password'] );
-      @dbg_error_log( "Login", ":_CheckLogin: User %s(%s) - %s (%d) login status is %d", $_POST['username'], $this->fullname, $this->user_no, $this->logged_in );
+      @dbg_error_log( "Login", ":_CheckLogin: User %s - %s (%d) login status is %d", $username, $this->fullname, $this->user_no, $this->logged_in );
     }
     else if ( !isset($_COOKIE['sid']) && isset($c->authenticate_hook['server_auth_type']) ) {
       /**

@@ -1,0 +1,10 @@
+#!/bin/bash
+# run our test suite, but on the installed package
+
+set -e
+
+
+# 2) phpunit tests
+phpunit --include-path /usr/share/awl tests
+
+

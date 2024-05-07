@@ -1482,15 +1482,38 @@ class Utils {
      */
     public static function FormatDateUtc($ts,$format) {
 
-        $dateFormatUtc = datefmt_create(
-            'en_US',
-            IntlDateFormatter::FULL,
-            IntlDateFormatter::FULL,
-            'UTC',
-            IntlDateFormatter::GREGORIAN, 
-            $format
-        );
-        return datefmt_format($dateFormatUtc, $ts);
+        // Mapping ICU date format to gmdate format
+        $patternMapping = [
+            'yyyy' => 'Y', // 4digit year
+            'yy' => 'y',   // 2digit year
+            'MM' => 'm',   // 2digit month
+            'dd' => 'd',   // 2digit day
+            'HH' => 'H',   // 2digit hour (24-hour)
+            'hh' => 'h',   // 2digit hour (12-hour)
+            'mm' => 'i',   // 2digit minute
+            'ss' => 's',   // 2digit second
+            'SS' => 's',   // 2digit second
+            "'T'" => '\T',
+            "'Z'" => '\Z',
+            "'.000Z'" => ".000\Z",
+        ];
+            
+        // Replace ICU patterns with gmdate patterns
+        foreach ($patternMapping as $icu => $gmdate) {
+            $format = str_replace($icu, $gmdate, $format);
+        }
+            
+        return gmdate($format, $ts);
+
+        // $dateFormatUtc = datefmt_create(
+        //     'en_US',
+        //     IntlDateFormatter::FULL,
+        //     IntlDateFormatter::FULL,
+        //     'UTC',
+        //     IntlDateFormatter::GREGORIAN, 
+        //     $format
+        // );
+        // return datefmt_format($dateFormatUtc, $ts);
     }
 
 }

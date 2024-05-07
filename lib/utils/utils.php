@@ -1278,7 +1278,11 @@ class Utils {
                 $str .= $val->text;
             }
             else {
-                $str .= @mb_convert_encoding($val->text, "utf-8", $val->charset);
+                try {
+                    $str .= @mb_convert_encoding($val->text, "utf-8", $val->charset);
+                } catch (ValueError $exception) {
+                    $str .= @iconv($val->charset, "utf-8", $val->text);
+                }
             }
         }
         if (!$isiso2022jp) {
@@ -1465,6 +1469,30 @@ class Utils {
 
         return $contents;
     }
+
+    /**
+     * Creates a Compact DateTime from a UTC Timestamp - Formats used for ActiveSync yyyyMMddTHHmmSSZ and yyyy-MM-ddTHH:mm:SS.000Z
+     *
+     * @param timestamp    $ts
+	 *
+	 * @param string       $format
+     *
+     * @access public
+     * @return string
+     */
+    public static function FormatDateUtc($ts,$format) {
+
+        $dateFormatUtc = datefmt_create(
+            'en_US',
+            IntlDateFormatter::FULL,
+            IntlDateFormatter::FULL,
+            'UTC',
+            IntlDateFormatter::GREGORIAN, 
+            $format
+        );
+        return datefmt_format($dateFormatUtc, $ts);
+    }
+
 }
 
 // TODO Win1252/UTF8 functions are deprecated and will be removed sometime

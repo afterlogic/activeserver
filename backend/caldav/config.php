@@ -31,15 +31,15 @@
 
 
 // Server protocol: http or https
-//define('CARDDAV_PROTOCOL', 'http');
+//define('CALDAV_PROTOCOL', 'http');
 
 // Server name
-//define('CARDDAV_SERVER', '');
+//define('CALDAV_SERVER', '');
 
 // Server port
-//define('CARDDAV_PORT', 80);
+//define('CALDAV_PORT', 80);
 
-// Path
+// Base URL to principals calendar collection: use '%l' for local part or '%u' for full username
 define('CALDAV_PATH', '/calendars/');
 
 // Default CalDAV folder (calendar folder/principal). This will be marked as the default calendar in the mobile

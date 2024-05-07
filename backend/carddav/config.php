@@ -27,14 +27,17 @@
 //  BackendCardDAV settings
 // ************************
 
+// Afterlogic customization: defined in aurora.config.php
 // Server protocol: http or https
-//define('CARDDAV_PROTOCOL', '');
+// define('CARDDAV_PROTOCOL', 'https');
 
+// Afterlogic customization: defined in aurora.config.php
 // Server name
-//define('CARDDAV_SERVER', '');
+// define('CARDDAV_SERVER', 'localhost');
 
+// Afterlogic customization: defined in aurora.config.php
 // Server port
-//define('CARDDAV_PORT', 80);
+// define('CARDDAV_PORT', '443');
 
 // Server path to the addressbook, or the principal with the addressbooks
 //  If your user has more than 1 addressbook point it to the principal.
@@ -42,9 +45,12 @@
 //      http://localhost/caldav.php/test@domain.com/addresses/personal
 //      http://localhost/caldav.php/test@domain.com/addresses/work
 //      You set the CARDDAV_PATH to '/caldav.php/%u/addresses/' and personal and work will be autodiscovered
+// %l: replaced with the local part of the username
 // %u: replaced with the username
 // %d: replaced with the domain
 //   Add the trailing /
+// Afterlogic customization
+// define('CARDDAV_PATH', '/caldav.php/%u/');
 define('CARDDAV_PATH', '/addressbooks/');
 
 
@@ -54,6 +60,8 @@ define('CARDDAV_PATH', '/addressbooks/');
 // %u: replaced with the username
 // %d: replaced with the domain
 //   Add the trailing /
+// Afterlogic customization
+// define('CARDDAV_DEFAULT_PATH', '/caldav.php/%u/addresses/');
 define('CARDDAV_DEFAULT_PATH', '/addressbooks/');
 
 // Server path to the GAL addressbook. This addressbook is readonly and searchable by the user, but it will NOT be synced.
@@ -62,10 +70,12 @@ define('CARDDAV_DEFAULT_PATH', '/addressbooks/');
 // %u: replaced with the username
 // %d: replaced with the domain
 //  Add the trailing /
+// Afterlogic customization
+// define('CARDDAV_GAL_PATH', '/caldav.php/%d/GAL/');
 define('CARDDAV_GAL_PATH', '/gab/');
 
 // Minimal length for the search pattern to do the real search.
-define('CARDDAV_GAL_MIN_LENGTH', 3);
+define('CARDDAV_GAL_MIN_LENGTH', 5);
 
 // Addressbook display name, the name showed in the mobile device
 // %l: replaced with the local part of the username

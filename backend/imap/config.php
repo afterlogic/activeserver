@@ -27,14 +27,17 @@
 //  BackendIMAP settings
 // ************************
 
+// Afterlogic customization: defined in aurora.config.php
 // Defines the server to which we want to connect
-//define('IMAP_SERVER', '');
+// define('IMAP_SERVER', 'localhost');
 
+// Afterlogic customization: defined in aurora.config.php
 // connecting to default port (143)
-//define('IMAP_PORT', 143);
+// define('IMAP_PORT', 143);
 
+// Afterlogic customization: defined in aurora.config.php
 // best cross-platform compatibility (see http://php.net/imap_open for options)
-//define('IMAP_OPTIONS', '/novalidate-cert');
+// define('IMAP_OPTIONS', '/notls/norsh');
 
 
 // Mark messages as read when moving to Trash.
@@ -78,7 +81,7 @@ define('IMAP_AUTOSEEN_ON_DELETE', false);
 
 // Since I know you won't configure this, I will raise an error unless you do.
 // When configured set this to true to remove the error
-define('IMAP_FOLDER_CONFIGURED', true);
+define('IMAP_FOLDER_CONFIGURED', true); // Afterlogic customization
 
 // Folder prefix is the common part in your names (3, 4)
 define('IMAP_FOLDER_PREFIX', '');
@@ -139,23 +142,23 @@ define('IMAP_FROM_SQL_PASSWORD', '');
 define('IMAP_FROM_SQL_OPTIONS', serialize(array(PDO::ATTR_PERSISTENT => true)));
 define('IMAP_FROM_SQL_QUERY', "select first_name, last_name, mail_address from users where mail_address = '#username@#domain'");
 define('IMAP_FROM_SQL_FIELDS', serialize(array('first_name', 'last_name', 'mail_address')));
+define('IMAP_FROM_SQL_EMAIL', '#mail_address');
 define('IMAP_FROM_SQL_FROM', '#first_name #last_name <#mail_address>');
 define('IMAP_FROM_SQL_FULLNAME', '#first_name #last_name');
 
-// SERVER: ldap server
-// SERVER_PORT: ldap port
+// SERVER_URI: ldap server
 // USER: dn to use for connecting
 // PASSWORD: password
 // QUERY: query to execute
 // FIELDS: columns in the query
 // FROM: string that will be the from, replacing the field names with the values
-define('IMAP_FROM_LDAP_SERVER', 'localhost');
-define('IMAP_FROM_LDAP_SERVER_PORT', '389');
+define('IMAP_FROM_LDAP_SERVER_URI', 'ldap://127.0.0.1:389/');
 define('IMAP_FROM_LDAP_USER', 'cn=zpush,ou=servers,dc=zpush,dc=org');
 define('IMAP_FROM_LDAP_PASSWORD', 'password');
 define('IMAP_FROM_LDAP_BASE', 'dc=zpush,dc=org');
 define('IMAP_FROM_LDAP_QUERY', '(mail=#username@#domain)');
 define('IMAP_FROM_LDAP_FIELDS', serialize(array('givenname', 'sn', 'mail')));
+define('IMAP_FROM_LDAP_EMAIL', '#mail');
 define('IMAP_FROM_LDAP_FROM', '#givenname #sn <#mail>');
 define('IMAP_FROM_LDAP_FULLNAME', '#givenname #sn');
 
@@ -165,13 +168,12 @@ define('IMAP_FROM_LDAP_FULLNAME', '#givenname #sn');
 // mail => mail() php function
 // sendmail => sendmail executable
 // smtp => direct connection against SMTP
-define('IMAP_SMTP_METHOD', 'smtp');
+define('IMAP_SMTP_METHOD', 'smtp'); // Afterlogic customization
 
 global $imap_smtp_params;
 // SMTP Parameters
 //      mail : no params
-//$imap_smtp_params = array();
-
+// Afterlogic customization
 $imap_smtp_params = array(
     'host' => AURORA_SMTP_SERVER,
     'port' => AURORA_SMTP_PORT,
@@ -220,7 +222,7 @@ define('SYSTEM_MIME_TYPES_MAPPING', '/etc/mime.types');
 
 
 // Use BackendCalDAV for Meetings. You cannot hope to get that functionality working without a caldav backend.
-define('IMAP_MEETING_USE_CALDAV', true);
+define('IMAP_MEETING_USE_CALDAV', true); // Afterlogic customization
 
 // If your IMAP server allows authenticating via GSSAPI, php-imap will not fall back properly to other authentication
 // methods and you will be unable to log in. Uncomment the following line to disable that authentication method.

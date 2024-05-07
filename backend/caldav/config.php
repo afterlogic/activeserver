@@ -30,26 +30,33 @@
 // ************************
 
 
+// Afterlogic customization: defined in aurora.config.php
 // Server protocol: http or https
-//define('CALDAV_PROTOCOL', 'http');
+// define('CALDAV_PROTOCOL', 'https');
 
+// Afterlogic customization: defined in aurora.config.php
 // Server name
-//define('CALDAV_SERVER', '');
+// define('CALDAV_SERVER', 'caldavserver.domain.com');
 
+// Afterlogic customization: defined in aurora.config.php
 // Server port
-//define('CALDAV_PORT', 80);
+// define('CALDAV_PORT', '443');
 
 // Base URL to principals calendar collection: use '%l' for local part or '%u' for full username
+// Afterlogic customization
+// define('CALDAV_PATH', '/caldav.php/%u/');
 define('CALDAV_PATH', '/calendars/');
 
 // Default CalDAV folder (calendar folder/principal). This will be marked as the default calendar in the mobile
+// Afterlogic customization
+// define('CALDAV_PERSONAL', 'PRINCIPAL');
 define('CALDAV_PERSONAL', 'MyCalendar');
 
 // If the CalDAV server supports the sync-collection operation
 // DAViCal, SOGo and SabreDav support it
 // SabreDav version must be at least 1.9.0, otherwise set this to false
 // Setting this to false will work with most servers, but it will be slower
-define('CALDAV_SUPPORTS_SYNC', true);
+define('CALDAV_SUPPORTS_SYNC', true); // Afterlogic customization
 
 
 // Maximum period to sync.

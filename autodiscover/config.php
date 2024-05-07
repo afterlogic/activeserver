@@ -87,7 +87,7 @@
 
     define('LOGBACKEND', 'filelog');
 
-    define('LOGFILEDIR', '/var/www/html/webmail/data/logs');
+    define('LOGFILEDIR', dirname(__FILE__) . '/data/logs/'); // Afterlogic customization
     define('LOGFILE', LOGFILEDIR . 'autodiscover.log');
     define('LOGERRORFILE', LOGFILEDIR . 'autodiscover-error.log');
     define('LOGLEVEL', LOGLEVEL_ERROR);
@@ -110,5 +110,3 @@
     define('BACKEND_PROVIDER', 'BackendCombined');
 
 include_once '../aurora.config.php';
-
-

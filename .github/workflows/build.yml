@@ -25,3 +25,4 @@ jobs:
         PRODUCT_NAME: ${{ secrets.PRODUCT_NAME }}
         FTP_USER: ${{ secrets.FTP_USER }}
         FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        FTP_SERVER_URL: ${{ secrets.FTP_SERVER_URL }}
